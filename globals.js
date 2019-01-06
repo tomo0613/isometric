@@ -1,3 +1,14 @@
+/**
+ * returns the value if it is within limits, else returns the limit that is closer to the value
+ * @param {number} val value
+ * @param {number} min lowest possible value
+ * @param {number} max highest possible value
+ * @returns {number}
+ */
+Math.valBetween = function(val, min, max) {
+    return (Math.max(min, Math.min(val, max)));
+};
+
 class Vector2 {
     constructor(x = 0, y = 0) {
         this.x = x;

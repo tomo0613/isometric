@@ -9,8 +9,8 @@ const pathFinder = new PF.BiBestFirstFinder({
     dontCrossCorners: true,
     heuristic: PF.Heuristic.chebyshev,
 });
-const _from = {x: 0, y: 0};
-const _to = {x: 0, y: 0};
+const _from = new Vector2();
+const _to = new Vector2();
 let grid;
 let path;
 let tileWidth;
@@ -22,13 +22,15 @@ const actions = {
     init(payload) {
         grid = new PF.Grid(payload.grid);
         tileWidth = payload.tileWidth;
-        tileHeight = payload.tileHeight;
+        tileHeight = payload.tileHeight;     
     },
     getPath(payload) {
-        _from.x = Math.floor(payload.from.x / tileWidth);
-        _from.y = Math.floor(payload.from.y / tileHeight);
-        _to.x = Math.floor(payload.to.x / tileWidth);
-        _to.y = Math.floor(payload.to.y / tileHeight);
+        _from.x = Math.valBetween(Math.floor(payload.from.x / tileWidth), 0, grid.width - 1);
+        _from.y = Math.valBetween(Math.floor(payload.from.y / tileHeight), 0, grid.height - 1);
+        _to.x = Math.valBetween(Math.floor(payload.to.x / tileWidth), 0, grid.width - 1);
+        _to.y = Math.valBetween(Math.floor(payload.to.y / tileHeight), 0, grid.height - 1);
+        
+        // ToDo return target if no need for path finding (same tile)
 
         path = pathFinder.findPath(_from.x, _from.y, _to.x, _to.y, grid.clone());
         path = path.map(([xIndex, yIndex]) => {

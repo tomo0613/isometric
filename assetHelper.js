@@ -120,13 +120,19 @@ export class Tile extends Asset {
     }
 }
 
+let _cacheIndex = '';
+const _cache = {
+    direction: {},
+};
+
 export class Creature extends Asset {
     constructor(frames, width, height) {
         super(frames, width, height);
 
         this.changeListener = new Listener();
-        this.velocity = new Proxy(new Vector2(), this._getStateChangeHandler());
-        this.movementSpeed = 200;
+        // this.velocity = new Proxy(new Vector2(), this._getStateChangeHandler());
+        this.velocity = new Vector2();
+        this.movementSpeed = 100;
         // ToDo
         this.currentAction = 'idle';
         this._originPosition = new Vector2();
@@ -135,16 +141,22 @@ export class Creature extends Asset {
     }
 
     initAction(actionType, target) {
+        this.terminateAction(); // refactor
+        
         actions[actionType].init(this, target);
-
-        this.currentAction = actionType;
-        // ToDo dispatch
     }
 
     terminateAction() {
+        if (this.currentAction === 'idle') {
+            return;
+        }
+
         actions[this.currentAction].terminate(this);
 
+        this._tmp.previousAction = this.currentAction;
         this.currentAction = 'idle';
+
+        this.changeListener.dispatchEvent('stateChange', this._tmp.previousAction, this.currentAction);
     }
 
     updatePosition(dt, collisionHelper) {
@@ -167,9 +179,9 @@ export class Creature extends Asset {
         });
 
         if (this.currentAction === 'walk' && !this.isMovingTowardsTarget()) {
+            this.velocity.set(0, 0);
             this._originPosition.set(0, 0);
             this._targetPosition.set(0, 0);
-            this.velocity.set(0, 0);
 
             this.changeListener.dispatchEvent('targetReached');
         }
@@ -178,12 +190,16 @@ export class Creature extends Asset {
     moveTo(targetPosition) {
         this._originPosition.copy(this.position);
         this._targetPosition.copy(targetPosition);
+        this._tmp.previousAction = this.currentAction;
+        this.currentAction = 'walk';
 
         this.velocity
             .copy(this._targetPosition)
             .subtract(this.position)
             .normalize()
             .scale(this.movementSpeed);
+
+        this.changeListener.dispatchEvent('stateChange', this._tmp.previousAction, this.currentAction);
     }
 
     isMovingTowardsTarget() {
@@ -214,6 +230,15 @@ export class Creature extends Asset {
     }
 
     get direction() {
+        _cacheIndex = `${this.velocity.x},${this.velocity.y}`;
+        
+        if (this.velocity.x === 0 && this.velocity.y === 0 && this._tmp.previousDirection) {
+            return this._tmp.previousDirection;
+        }
+        if (_cache.direction[_cacheIndex]) {
+            return _cache.direction[_cacheIndex];
+        }
+
         this._tmp.angle = Math.atan2(this.velocity.y, this.velocity.x) + Math.PI/8;
         if (this._tmp.angle < 0) {
             this._tmp.angle += 2*Math.PI;
@@ -221,7 +246,7 @@ export class Creature extends Asset {
             this._tmp.angle -= 2*Math.PI;
         }
 
-        return directions.find((dir, index) => {
+        return _cache.direction[_cacheIndex] = this._tmp.previousDirection = directions.find((dir, index) => {
             return this._tmp.angle >= index * Math.PI/4 && this._tmp.angle < (index + 1) * Math.PI/4;
         });
     }

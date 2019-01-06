@@ -6,16 +6,23 @@ const mapData = [
     ['f0_w2', 'f0   ', 'f5   ', 'f0   ', 'f0   '],
     ['f1_w2', 'f0   ', 'f0_w0', 'f0   ', 'f1_w3'],
     ['f0_w2', 'f3   ', 'f2   ', 'f3   ', 'f0   '],
+    ['f0   ', 'f0   ', 'f0   ', 'f0   ', 'f0   '],
+    ['f0   ', 'f0_w0', 'f0_w1', 'f0_w1', 'f0_w1'],
+    ['f0   ', 'f0_w2', 'f0   ', 'f0   ', 'f0   '],
+    ['f0   ', 'f0_w2', 'f0   ', 'f0_w3', 'f0   '],
+    ['f0   ', 'f0_w2', 'f0   ', 'f0_w2', 'f0   '],
+    ['f0   ', 'f0_w0', 'f0_w1', 'f0_w0', 'f0   '],
+    ['f0   ', 'f0   ', 'f0   ', 'f0   ', 'f0   '],
 ];
 
 export default {
     mapData,
-    traverseGrid,
+    buildMap,
     initPathfinder,
     getPath,
 };
 
-function traverseGrid(grid, tileConstructor) {
+function buildMap(grid, tileConstructor) {
     grid.forEach((gridRow, rowIndex) => {
         gridRow.forEach((tileData, columnIndex) => {
             tileData = tileData.trim();

@@ -48,15 +48,13 @@ async function init() {
     const paladinSprites = parseSpriteSheet(paladinSheet, 96, 97, paladinSheetFrameGetters, {});
 
     testEntity = new Creature(paladinSprites.idle_s, 45, 45);
-    // testEntity.position.set(182, 182);
-    testEntity.position.set(190, 190);
+    testEntity.position.set(182, 182);
     testEntity.animationOffset.set(-20, -55);
     testEntity.animationClip.speed = 120;
 
-    testEntity.changeListener.addListener('stateChange', (entity) => {
-        const animationName = (entity.velocity.x === 0 && entity.velocity.y === 0) ? 'idle' : 'walk';
+    testEntity.changeListener.addListener('stateChange', (previousAction, currentAction) => {
         // ToDo state.action & direction
-        testEntity.animationClip.setFrames(paladinSprites[animationName + '_' + entity.direction]);
+        testEntity.animationClip.setFrames(paladinSprites[currentAction + '_' + testEntity.direction]);
     });
 
     testEntity.changeListener.addListener('collision', (collidingAsset) => {});
@@ -69,7 +67,7 @@ async function init() {
     let floorId;
     let wallId;
     let _tile;
-    mapHelper.traverseGrid(mapHelper.mapData, (tileData, rowIndex, columnIndex) => {
+    mapHelper.buildMap(mapHelper.mapData, (tileData, rowIndex, columnIndex) => {
         [floorId, wallId] = tileData.split('_');
 
         if (floorId) {
@@ -95,9 +93,6 @@ async function init() {
         }
 
         const targetPos = scene.viewPort.resolveScreenPosition(e.offsetX, e.offsetY);
-
-        // testEntity.initAction('walk', [[targetPos.x, targetPos.y]]);
-        // testEntity.moveTo(targetPos);
 
         mapHelper.getPath(testEntity.position, targetPos)
             .then((path) => testEntity.initAction('walk', path))
