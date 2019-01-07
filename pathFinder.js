@@ -9,10 +9,8 @@ const pathFinder = new PF.BiBestFirstFinder({
     dontCrossCorners: true,
     heuristic: PF.Heuristic.chebyshev,
 });
-const _from = new Vector2();
-const _to = new Vector2();
+
 let grid;
-let path;
 let tileWidth;
 let tileHeight;
 
@@ -25,24 +23,44 @@ const actions = {
         tileHeight = payload.tileHeight;     
     },
     getPath(payload) {
-        _from.x = Math.valBetween(Math.floor(payload.from.x / tileWidth), 0, grid.width - 1);
-        _from.y = Math.valBetween(Math.floor(payload.from.y / tileHeight), 0, grid.height - 1);
-        _to.x = Math.valBetween(Math.floor(payload.to.x / tileWidth), 0, grid.width - 1);
-        _to.y = Math.valBetween(Math.floor(payload.to.y / tileHeight), 0, grid.height - 1);
-        
-        // ToDo return target if no need for path finding (same tile)
-
-        path = pathFinder.findPath(_from.x, _from.y, _to.x, _to.y, grid.clone());
-        path = path.map(([xIndex, yIndex]) => {
-            return new Vector2(
-                xIndex * tileWidth + tileWidth / 2,
-                yIndex * tileHeight + tileHeight / 2
-            );
-        });
-
         self.postMessage({
             type: 'path',
-            path,
+            path: findPath(payload.originPosition,  payload.targetPosition),
         });
     },
 };
+
+const _origin = new Vector2();
+const _target = new Vector2();
+let path;
+
+function findPath(originPosition, targetPosition) {
+    _origin.set(
+        Math.valBetween(Math.floor(originPosition.x / tileWidth), 0, grid.width - 1),
+        Math.valBetween(Math.floor(originPosition.y / tileHeight), 0, grid.height - 1)
+    );
+    _target.set(
+        Math.valBetween(Math.floor(targetPosition.x / tileWidth), 0, grid.width - 1),
+        Math.valBetween(Math.floor(targetPosition.y / tileHeight), 0, grid.height - 1)
+    );
+
+    if (_origin.equals(_target)) {
+        return [targetPosition];
+    }
+
+    path = pathFinder.findPath(_origin.x, _origin.y, _target.x, _target.y, grid.clone());
+    path.shift(); // origin is not needed
+
+    // console.log(path);
+    // ToDo optimize path
+
+    return path.map(([xIndex, yIndex], i) => {
+        if (i === path.length - 1) {
+            return targetPosition;
+        }
+        return new Vector2(
+            xIndex * tileWidth + tileWidth / 2,
+            yIndex * tileHeight + tileHeight / 2
+        );
+    });
+}

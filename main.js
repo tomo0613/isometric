@@ -132,4 +132,10 @@ addEventListener('keydown', (e) => {
             testEntity
         );
     }
+    if (e.key == '+') {
+        testEntity.movementSpeed += 10;
+    }
+    if (e.key == '-' && testEntity.movementSpeed > 0) {
+        testEntity.movementSpeed -= 10;
+    }
 });
