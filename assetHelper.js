@@ -132,7 +132,7 @@ export class Creature extends Asset {
         this.changeListener = new Listener();
         // this.velocity = new Proxy(new Vector2(), this._getStateChangeHandler());
         this.velocity = new Vector2();
-        this.movementSpeed = 100;
+        this.movementSpeed = 200;
         // ToDo
         this.currentAction = 'idle';
         this._originPosition = new Vector2();

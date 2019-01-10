@@ -52,7 +52,7 @@ function initPathfinder(grid, tileWidth, tileHeight) {
     });
 }
 
-function getPath(originPosition, targetPosition) {
+function getPath(originPosition, targetPosition, assetWidth, assetHeight) {
     return new Promise((resolve, reject) => {
         function errorHandler(e) {
             pathFinder.removeEventListener('error', errorHandler);
@@ -74,7 +74,7 @@ function getPath(originPosition, targetPosition) {
         pathFinder.addEventListener('message', messageHandler);
         pathFinder.postMessage({
             type: 'getPath',
-            payload: {originPosition, targetPosition},
+            payload: {originPosition, targetPosition, assetWidth, assetHeight},
         });
     });
 }

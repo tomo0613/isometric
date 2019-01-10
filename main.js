@@ -94,7 +94,7 @@ async function init() {
 
         const targetPos = scene.viewPort.resolveScreenPosition(e.offsetX, e.offsetY);
 
-        mapHelper.getPath(testEntity.position, targetPos)
+        mapHelper.getPath(testEntity.position, targetPos, testEntity.width, testEntity.height)
             .then((path) => testEntity.initAction('walk', path))
             .catch((e) => console.error(e));
     }
